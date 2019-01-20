@@ -17,6 +17,7 @@ public class ProductVO {
 
     private String priceLabel;
 
+    @JsonIgnore
     private Float difference;
 
 
