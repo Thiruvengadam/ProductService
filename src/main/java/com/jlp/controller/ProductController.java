@@ -3,18 +3,18 @@ package com.jlp.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.jlp.product.ProductsItem;
 import com.jlp.vo.ColorSwatchVO;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import com.jlp.product.ProductList;
 import com.jlp.vo.ProductVO;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Predicate;
 
 @RestController
 public class ProductController {
@@ -34,6 +34,11 @@ public class ProductController {
     public static final String BRACES = "{";
     public static final Map<String, String> COLOR_HEXADECIMAL_MAP = new HashMap();
 
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder.build();
+    }
+
     static {
         COLOR_HEXADECIMAL_MAP.put("Purple", "800080");
         COLOR_HEXADECIMAL_MAP.put("Grey", "808080");
@@ -42,25 +47,26 @@ public class ProductController {
         COLOR_HEXADECIMAL_MAP.put("Yellow", "FFFF00");
     }
 
-    @RequestMapping("/product")
+    @GetMapping("/product")
     public List<ProductVO> getPriceReducedProduct(@RequestParam(required = false) String labelType) {
 
         RestTemplate restTemplate = new RestTemplate();
         List<ProductVO> productVOList = new ArrayList<>();
         try {
             ProductList productList = restTemplate.getForObject(GET_PRODUCTS_URL, ProductList.class);
-
-            productList.getProducts().stream()
-                    .filter(productItem -> (productItem.getPrice() != null && !StringUtils.isEmpty(productItem.getPrice().getWas())))
-                    .forEach(reducedPriceProduct ->
-                    {
-                        setProductVO(labelType, productVOList, reducedPriceProduct);
-                    });
+            productList.getProducts().parallelStream()
+                    .filter(filterPrice())
+                    .forEach(reducedPriceProduct -> setProductVO(labelType, productVOList, reducedPriceProduct));
+            productVOList.sort(Comparator.comparing(ProductVO::getDifference).reversed());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return productVOList;
+    }
+
+    private static Predicate<ProductsItem> filterPrice() {
+        return productItem -> (productItem.getPrice() != null && !StringUtils.isEmpty(productItem.getPrice().getWas()));
     }
 
     private void setProductVO(@RequestParam(required = false) String labelType, List<ProductVO> productVOList, ProductsItem reducedPriceProduct) {

@@ -1,12 +1,10 @@
 package com.jlp.vo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.Setter;
-
+import lombok.Data;
 import java.util.List;
 
-@Getter@Setter
+@Data
 public class ProductVO {
 
     private String productId;
@@ -19,7 +17,6 @@ public class ProductVO {
 
     private String priceLabel;
 
-    @JsonIgnore
     private Float difference;
 
 
