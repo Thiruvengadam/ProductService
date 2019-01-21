@@ -16,6 +16,14 @@ import com.jlp.vo.ProductVO;
 import java.util.*;
 import java.util.function.Predicate;
 
+/**
+ * This is the controller class which will be invoked when /product is called
+ * <br/> We are invoking the getProducts Rest API and business logic is implemented
+ *  
+ * @author Thiruvengadam
+ *
+ */
+
 @RestController
 public class ProductController {
 
@@ -32,7 +40,7 @@ public class ProductController {
     public static final String FORMAT_TWO_DECIMAL = "%.2f";
     public static final String TO = "to";
     public static final String BRACES = "{";
-    public static final Map<String, String> COLOR_HEXADECIMAL_MAP = new HashMap();
+    public static final Map<String, String> COLOR_HEXADECIMAL_MAP = new HashMap<String, String>();
 
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {

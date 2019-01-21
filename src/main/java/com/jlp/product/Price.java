@@ -2,7 +2,6 @@ package com.jlp.product;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 public class Price{
 	private String uom;
